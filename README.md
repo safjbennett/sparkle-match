@@ -1,87 +1,139 @@
 # Sparkle Match ✨
 
-A magical match-3 game made for one very specific 7-year-old. Pure HTML/CSS/JS with synthesized music — no build step, no framework, runs offline once loaded.
+A magical Candy-Crush-style match-3 game made for one very specific 7-year-old. Pure HTML/CSS/JS, no framework, no build step. Plays offline once loaded.
 
 ## Features
 
+### Core gameplay
 - **6×6 grid** sized for small fingers
-- **Drag or tap** to swap pieces (both work)
-- **4 themes**: Unicorn Meadow, Mermaid Lagoon, Winter Wonder, Fairy Garden — each with own symbol set, palette, and music
-- **Fairy garden home screen** with floating creatures matched to the chosen theme
-- **Power-ups** for big matches:
-  - ⚡ **Lightning** — match 4 in a line clears the entire perpendicular row/column
-  - 💣 **Bomb** — L/T-shaped match clears a 3×3 area
-  - 🌈 **Rainbow Burst** — match 5 in a line clears the whole board, 2× points
-- **Animations**: glow + wobble before pop, sparkle trails flying to the score counter, theme-tinted particles, lightning trails through matches, bouncy drops, score popups, screen flash on big combos
-- **Synthesized fairy music** — 4 themed tracks (~40s each, looped) generated programmatically, total ~2MB
-- **Synthesized SFX** — Web Audio chimes, no audio files for sounds
-- **No fail state** — running out of moves shows a gentle "try again"
-- **PWA-ready** — Add to iPhone Home Screen for full-screen offline play
-- **localStorage** for best score, theme, and audio preferences
+- **Drag or tap** to swap pieces (both work simultaneously)
+- **4 themed worlds** with distinct symbols, palettes, and music
+- **20 levels** across 4 worlds, with progressively harder objectives
+- **Hint shimmer** if she's idle for 5 seconds — gently glows a possible match
+
+### Special pieces (Candy-Crush-grade)
+- **⚡ Striped Candy** — match 4 in a line. Spawns a piece that, when matched, clears its full row (horizontal stripe) or column (vertical stripe).
+- **🎁 Wrapped Candy** — match in an L or T shape. When matched, explodes in a 3×3 area, then **explodes a second time** after pieces fall.
+- **🌟 Color Bomb** — match 5 in a line. Swap with any piece to clear every candy of that color.
+- **🐠 Jelly Fish** — match 4 in a 2×2 square. When matched, swims to 3 random cells (preferring blockers and jelly) and eats them.
+
+### Special + special combinations
+- **Striped + Striped** — clears a full row AND a full column (cross)
+- **Striped + Wrapped** — giant plus-sign clearing 3 rows + 3 columns
+- **Wrapped + Wrapped** — 5×5 double explosion
+- **Striped + Color Bomb** — every candy of that color becomes striped, then activates
+- **Wrapped + Color Bomb** — every candy of that color explodes 3×3
+- **Color Bomb + Color Bomb** — clears the entire board
+- **Color Bomb + Jelly Fish** — flurry of fish across the board
+
+### Level types
+- **Score** — hit a target points goal
+- **Jelly** — clear all jelly tiles by matching on top of them (1 or 2 layers per cell)
+- **Order** — collect a specific number of specific symbols
+- **Mixed** — combinations of the above
+
+### Blockers
+- **🍫 Chocolate** — spreads to a random adjacent cell each turn unless an adjacent match clears one
+- **Meringue** — fluffy white block with 1, 2, or 3 HP; chip away with adjacent matches
+
+### End-of-level bonuses
+- **🍭 Sugar Crush** — when goal is met, each remaining move converts to a striped candy that auto-activates, cascading across the board for a flurry of bonus points
+- **⭐ Stars** — 1, 2, or 3 stars per level based on score thresholds (60 stars total)
+- **Per-level best score** persists in localStorage
+
+### World map progression
+- 4 themed worlds: Unicorn Meadow → Mermaid Lagoon → Winter Wonder → Fairy Garden
+- Levels unlock sequentially as she completes them
+- Pin shows stars earned per level
+- Click any unlocked level to play it directly
+
+### Audio
+- 4 synthesized fairy-themed music tracks (one per world), pre-rendered MP3 ~500KB each
+- Synthesized SFX via Web Audio (chimes for matches, lightning, bombs, rainbow, fish, sugar crush)
+- Separate Music and Sounds toggles
+
+### Polish
+- Glow + wobble before pop, sparkle trails flying to score, theme-tinted particles, lightning trails through matches, bouncy drops, score popups, screen flash on big combos
+- Big stars animation on level complete
+- No fail state — running out of moves shows a gentle "try again"
 
 ## File structure
 
 ```
 .
-├── index.html           ← the game
+├── index.html        ← HTML shell (4.8 KB)
+├── styles.css        ← all styling (~20 KB)
+├── game.js           ← game engine (~69 KB)
+├── levels.js         ← 20 level definitions (~6 KB)
 ├── audio/
-│   ├── unicorn.mp3      ← Unicorn Meadow music
-│   ├── mermaid.mp3      ← Mermaid Lagoon music
-│   ├── winter.mp3       ← Winter Wonder music
-│   └── fairy.mp3        ← Fairy Garden music
-├── generate_music.py    ← (optional) regenerates the music tracks
+│   ├── unicorn.mp3   ← Unicorn Meadow music
+│   ├── mermaid.mp3   ← Mermaid Lagoon music
+│   ├── winter.mp3    ← Winter Wonder music
+│   └── fairy.mp3     ← Fairy Garden music
+├── generate_music.py ← (optional) regenerate music tracks
 └── README.md
 ```
 
-You only need `index.html` and the `audio/` directory to deploy. The Python script is just for regenerating music if you want to.
+Required for deployment: `index.html`, `styles.css`, `game.js`, `levels.js`, and the `audio/` folder.
 
 ## Deploy to Vercel from GitHub
 
-1. Create a new GitHub repo and commit `index.html` + the `audio/` folder.
+1. Create a new GitHub repo and commit all the files above (preserve the `audio/` directory).
 2. Push to GitHub.
-3. On vercel.com, **Add New Project → Import** the repo.
-4. Framework preset: **Other** (Vercel auto-detects static).
+3. On vercel.com → **Add New Project → Import** the repo.
+4. Framework preset: **Other** (it's pure static).
 5. Leave build command and output directory blank.
 6. **Deploy**.
 
-That's it. Vercel serves `index.html` at the root and `audio/*.mp3` is reachable at `/audio/unicorn.mp3` etc., which is what the game references.
-
-No `package.json`, no `vercel.json`, no build step.
+No `package.json`, no `vercel.json`, no build step. Vercel serves `index.html` at the root and the rest as static assets.
 
 ## Add to iPhone home screen
 
-1. Open the Vercel URL in Safari on the iPhone.
+1. Open the Vercel URL in Safari.
 2. Tap **Share → Add to Home Screen** → name it "Sparkle Match".
-3. The icon appears on the home screen and launches full-screen, no Safari chrome.
-4. After the first launch, the audio is cached, so it works offline.
+3. The icon appears on the home screen and launches full-screen.
+4. After first load, all assets are cached, so it works offline.
 
-## Swapping in different music
+## Customizing
 
-The synthesized tracks are pleasant but if you find better royalty-free tracks (Pixabay Music, OpenGameArt, freesound.org), you can drop them in directly:
+### Music
+The four MP3s in `audio/` were generated by `generate_music.py`. To swap any of them:
+- Drop in any CC0 / royalty-free MP3 with a clean loop, named `unicorn.mp3` / `mermaid.mp3` / `winter.mp3` / `fairy.mp3`.
+- Redeploy. The game picks them up automatically.
 
-1. Find a CC0 / royalty-free MP3 you like, ideally 30–90 seconds long with a clean loop point.
-2. Rename it to one of: `unicorn.mp3`, `mermaid.mp3`, `winter.mp3`, `fairy.mp3`.
-3. Replace the file in `audio/` and redeploy. The game will pick it up automatically.
+To regenerate the synthesized tracks: `pip install numpy && python3 generate_music.py`.
 
-Search terms that tend to work: "fairy lullaby", "music box loop", "magical kids", "ambient harp", "underwater calm".
+### Levels
+Edit `levels.js` to change goals, moves, jelly grids, orders, blockers, or star thresholds. Each level entry is documented inline. To add more levels, append entries with sequential `id`s.
 
-## Regenerating the synthesized music
+### Themes
+Edit the `THEMES` object near the top of `game.js`. Each theme defines: symbols (6 emoji), particle types, garden creatures, music file path, and CSS variable colors.
 
-Requires Python 3, numpy, and ffmpeg:
-
-```bash
-pip install numpy
-python3 generate_music.py
-```
-
-Output goes to `audio/`. Edit the chord progressions, tempos, or melody patterns in the script to taste.
-
-## Customizing the game
-
-Everything game-related lives in `index.html`. Useful search anchors:
-
-- `THEMES` — symbols, gradients, particle types, music file per theme
+### Game tuning
+Search `game.js` for:
 - `SIZE` — grid size (currently 6)
-- `goalForLevel` — level scaling
-- `processMatches` — power-up logic (lightning / bomb / rainbow)
-- `currentTheme.particles` — what flies out on match
+- `DRAG_THRESHOLD_FRAC` — how far you have to drag to swap (0.30 of cell width)
+- `bumpIdle` / `5000` — hint delay (5 seconds)
+- `processMatches` / `bonusMultiplier` — scoring math
+- `sugarCrush` — end-of-level bonus logic
+
+## Test results
+
+All match-detection and special-piece logic verified with unit tests:
+- 7 match-detection tests (3/4/5-in-a-row, vertical, T-shape, 2×2 square, no-match)
+- 9 level-data validation tests (count, IDs, types, worlds, thresholds, per-world distribution)
+- 3 special-spawn-target tests (horizontal striped, vertical striped, color bomb)
+- Full game.js loads cleanly in a stubbed-DOM environment (board renders 36 cells, 22 background twinkles)
+
+## Sounds and what they mean
+
+- Soft chime — selecting a piece
+- Clean tone — successful swap
+- Buzzer — invalid swap (reverts)
+- Rising arpeggio — match (gets higher with combo level)
+- Lightning crackle — striped activation
+- Deep boom — wrapped/bomb
+- Rainbow scale — color bomb / rainbow burst
+- Fish chime — jelly fish swim
+- Big fanfare — level win
+- Sugar Crush scale — start of end-of-level bonus
